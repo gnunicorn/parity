@@ -503,15 +503,15 @@ impl BlockDownloader {
 
 			match result {
 				Err(BlockImportError(BlockImportErrorKind::Import(ImportErrorKind::AlreadyInChain), _)) => {
-					trace!(target: "sync", "Block already in chain {:?}", h);
+					trace!(target: "sync", "Block #{} already in chain {:?}", number, h);
 					self.block_imported(&h, number, &parent);
 				},
 				Err(BlockImportError(BlockImportErrorKind::Import(ImportErrorKind::AlreadyQueued), _)) => {
-					trace!(target: "sync", "Block already queued {:?}", h);
+					trace!(target: "sync", "Block #{} already queued {:?}", number, h);
 					self.block_imported(&h, number, &parent);
 				},
 				Ok(_) => {
-					trace!(target: "sync", "Block queued {:?}", h);
+					trace!(target: "sync", "Block #{} queued {:?}", number, h);
 					imported.insert(h.clone());
 					self.block_imported(&h, number, &parent);
 				},
@@ -519,15 +519,15 @@ impl BlockDownloader {
 					break;
 				},
 				Err(BlockImportError(BlockImportErrorKind::Block(BlockError::UnknownParent(_)), _)) => {
-					trace!(target: "sync", "Unknown new block parent, restarting sync");
+					trace!(target: "sync", "Unknown new block #{} parent, restarting sync", number);
 					break;
 				},
 				Err(BlockImportError(BlockImportErrorKind::Block(BlockError::TemporarilyInvalid(_)), _)) => {
-					debug!(target: "sync", "Block temporarily invalid, restarting sync");
+					debug!(target: "sync", "Block #{} temporarily invalid, restarting sync", number);
 					break;
 				},
 				Err(e) => {
-					debug!(target: "sync", "Bad block {:?} : {:?}", h, e);
+					debug!(target: "sync", "Bad block #{} {:?} : {:?}", number, h, e);
 					bad = true;
 					break;
 				}

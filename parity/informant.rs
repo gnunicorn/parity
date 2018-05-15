@@ -256,7 +256,7 @@ impl<T: InformantData> Informant<T> {
 
 	pub fn tick(&self) {
 		let elapsed = self.last_tick.read().elapsed();
-		if elapsed < Duration::from_secs(5) {
+		if elapsed < Duration::from_secs(2) {
 			return;
 		}
 
@@ -284,7 +284,7 @@ impl<T: InformantData> Informant<T> {
 				_ => false,
 			}
 		);
-		if !importing && !snapshot_sync && elapsed < Duration::from_secs(30) {
+		if !importing && !snapshot_sync && elapsed < Duration::from_secs(5) {
 			return;
 		}
 

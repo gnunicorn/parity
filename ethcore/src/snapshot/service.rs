@@ -352,8 +352,6 @@ impl Service {
 				);
 
 				let mut block_number = next_ancient_block + 1;
-				let mut batch = DBTransaction::new();
-				let mut parent_diff = None;
 
 				while block_number < next_first_block {
 					let chain = cur_chain.read();
@@ -364,26 +362,19 @@ impl Service {
 
 						match (block, block_receipts) {
 							(Some(block), Some(block_receipts)) => {
-								let diff = block.difficulty();
+								let mut batch = DBTransaction::new();
 								let raw_block = block.into_inner();
 								let block_receipts = block_receipts.receipts;
 
-								next_chain.insert_unordered_block(&mut batch, &raw_block, block_receipts, parent_diff, false, true);
-								parent_diff = Some(diff);
+								next_chain.insert_unordered_block(&mut batch, &raw_block, block_receipts, None, false, true);
+
+								next_db.write_buffered(batch);
+								next_chain.commit();
 							},
 							_ => (),
 						}
-					// Break if we already imported some blocks in the current batch and there
-					// are no more left
-					} else if parent_diff.is_some() {
+					} else {
 						break;
-					}
-
-					// Writting changes to DB and logging every now and then
-					if block_number % 1_000 == 0 {
-						next_db.write_buffered(batch);
-						next_chain.commit();
-						batch = DBTransaction::new();
 					}
 
 					if block_number % 10_000 == 0 {
@@ -394,8 +385,6 @@ impl Service {
 				}
 
 				// Final commit to the DB
-				next_db.write_buffered(batch);
-				next_chain.commit();
 				next_db.flush().expect("DB flush failed.");
 			},
 			_ => (),
