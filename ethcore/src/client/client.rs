@@ -177,7 +177,7 @@ pub struct Client {
 	/// Operating mode for the client
 	mode: Mutex<Mode>,
 
-	chain: RwLock<Arc<BlockChain>>,
+	pub chain: RwLock<Arc<BlockChain>>,
 	tracedb: RwLock<TraceDB<BlockChain>>,
 	engine: Arc<EthEngine>,
 
