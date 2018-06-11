@@ -167,8 +167,13 @@ fn main() {
 	match execute(env::args()) {
 		Ok(ok) => println!("{}", ok),
 		Err(err) => {
-			println!("{}", err);
-			process::exit(1);
+			match err {
+				Error::Docopt(ref e) => e.exit(),
+				_ => {
+					println!("{}", err);
+					process::exit(1);
+				}
+			}
 		},
 	}
 }
